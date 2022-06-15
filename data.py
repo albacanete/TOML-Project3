@@ -15,7 +15,7 @@ import pandas as pd
 ########### INDICATE THE PATH IN WHICH YOU HAVE THE DATA FILE datos_TOML-17001.csv
 
 ###### SUBSTITUTE THE PATH HERE BY YOUR OWN PATH WHERE YOU HAVE COPIED THE DATA FILES
-dir_path = "/home/alba/Documentos/MIRI/S2/TOML/Project3/"
+dir_path = "/home/alba/Documentos/MIRI/S2/TOML/Project3/csv/"
 
 ###### DATA FILES TO BE LOADED
 data_NO2 = dir_path + "NO2_Manlleu.csv"

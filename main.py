@@ -2,6 +2,7 @@ import data
 import pandas as pd
 import data_observation
 import plots
+import MLR
 
 if __name__ == "__main__":
     # remove dots from thousands in O3 sensors data
