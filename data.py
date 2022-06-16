@@ -99,4 +99,4 @@ print('O3+NO2+NO+SO2', new_PR_data_inner.shape)
 
 # %%
 ##### PRINT the HEADERS in the PANDAS data frame
-# print('headers of the pandas object new_PR_data_inner :\n', new_PR_data_inner.columns)
+print('headers of the pandas object new_PR_data_inner :\n', new_PR_data_inner.columns)

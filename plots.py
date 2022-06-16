@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-mpl.rcParams['figure.figsize'] = (15, 10)
+mpl.rcParams['figure.figsize'] = (10, 6)
 
 
 def plot_O3(data):
@@ -8,7 +8,7 @@ def plot_O3(data):
     data.plot(x='date', y='Sensor_O3')
     plt.title("O3 sensor data (KOhms) vs date")
     plt.ylabel("KOhms")
-    plt.savefig("img/03sensor_date2")
+    plt.savefig("img/03sensor_date")
     plt.clf()
     # plt.show()
 
@@ -17,7 +17,7 @@ def plot_O3(data):
     # plt.gcf().autofmt_xdate()
     plt.title("O3 ref station data (µgr/m^3) vs date")
     plt.ylabel("µgr/m^3")
-    plt.savefig("img/O3ref_date2")
+    plt.savefig("img/O3ref_date")
     plt.clf()
     # plt.show()
 
@@ -31,13 +31,13 @@ def scatter_ref(data):
     # plt.show()
 
     # Normalize the data
-    data['Sensor_O3_norm'] = (data['Sensor_O3'] - data['Sensor_O3'].mean()) / \
+    data['Sensor_O3'] = (data['Sensor_O3'] - data['Sensor_O3'].mean()) / \
                                      data['Sensor_O3'].std()
-    data['RefSt_norm'] = (data['RefSt'] - data['RefSt'].mean()) / data[
+    data['RefSt'] = (data['RefSt'] - data['RefSt'].mean()) / data[
         'RefSt'].std()
 
     # O3 sensor agains ref station normalized
-    normalized_plt = data.plot.scatter(x='Sensor_O3_norm', y='RefSt_norm', color='blue')
+    normalized_plt = data.plot.scatter(x='Sensor_O3', y='RefSt', color='blue')
     normalized_plt.set_xlabel("Sensor_O3 normalized")
     normalized_plt.set_ylabel("RefSt normalized")
     plt.axline([0, 0], [1, 1], color='red', linestyle="--")
@@ -66,3 +66,20 @@ def plot_metrics(data):
         name = "O3ref_" + i
         plt.savefig("img/" + name)
         # plt.show()
+
+
+def plot_ridge(linear, ridge):
+    # Plot linear model
+    plt.plot(linear.coef_[0], "o", label="Linear", color="red")
+
+    # Plot ridge regressions
+    plt.plot(ridge[0].coef_[0], "s", label="Ridge alpha 0")
+    plt.plot(ridge[1].coef_[0], "^", label="Ridge alpha 1")
+    plt.plot(ridge[2].coef_[0], "v", label="Ridge alpha 10")
+    plt.plot(ridge[3].coef_[0], "o", label="Ridge alpha 100")
+    plt.xlabel("Coefficient index")
+    plt.ylabel("Coefficient magnitude")
+    plt.hlines(0, 0, linear.coef_[0].itemsize)
+    plt.ylim(-1, 1)
+    plt.legend()
+    plt.show()
