@@ -3,40 +3,24 @@ import seaborn as sns  # for scatter plot
 import matplotlib.pyplot as plt
 import data
 
-from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
 
 
-def svr(x_train, y_train, x_test, y_test):
+def k_neighbors(x_train, y_train, x_test, y_test):
     pred = pd.DataFrame()
     pred['RefSt'] = y_test
     pred['Sensor_O3'] = x_test['Sensor_O3']
     pred['date'] = data.new_PR_data_inner['date']
 
-    # TODO: perform grid search to find best hyperparameters. This is just a test
-    # C = 100
-    # degree = 2
-    # gamma = "scale"
-    # kernel = "rbf"
-
-    # Performing hyper-parameters grid search
-    C = [0.001, 0.01, 0.1, 1, 10, 100]
-    degree = [1, 2, 3, 4, 5, 6, 7]
-    gamma = ["auto", "scale"]
-    kernel = ["rbf", "poly", "linear"]
+    n_neighbors = [1, 3, 5, 7, 9, 11, 13, 15]
 
     param_grid = {
-        'kernel': kernel,
-        'degree': degree,
-        'gamma': gamma,
-        'C': C,
+        'n_neighbors': n_neighbors,
     }
 
     scoring_cols = [
-        'param_kernel',
-        'param_C',
-        'param_degree',
-        'param_gamma',
+        'param_n_neighbors',
         'mean_test_mae',
         'mean_test_mse',
         'mean_test_r2',
@@ -49,7 +33,7 @@ def svr(x_train, y_train, x_test, y_test):
     }
 
     cvModel = GridSearchCV(
-        estimator=SVR(),
+        estimator=KNeighborsRegressor(),
         scoring=scoring_dict,
         param_grid=param_grid,
         refit='mae',
@@ -66,19 +50,16 @@ def svr(x_train, y_train, x_test, y_test):
     scores = pd.DataFrame(cvModel.cv_results_).sort_values(by='mean_test_mae', ascending=False)[scoring_cols].head()
     print(scores)
 
-    """"
-    BEST SCORES ARE:
-            param_kernel param_C  param_degree param_gamma  mean_test_mae  mean_test_mse  mean_test_r2
-    168          rbf      10           1        auto         -0.186          -0.063         0.935  
-    """
-
-    pred['SVR_Pred'] = cvModel.predict(x_test)
+    # Plot linear
+    pred = pd.DataFrame()
+    pred['RefSt'] = y_test
+    pred['KNN_Pred'] = cvModel.predict(x_test)
     pred['date'] = data.new_PR_data_inner['date']
     ax = pred.plot(x='date', y='RefSt')
-    pred.plot(x='date', y='SVR_Pred', ax=ax, title='Support Vector Regression')
+    pred.plot(x='date', y='KNN_Pred', ax=ax, title='K-Nearest Neighbor')
     plt.show()
 
     # Plot regression
-    sns.lmplot(x='RefSt', y='SVR_Pred', data=pred, fit_reg=True, line_kws={'color': 'orange'})
+    sns.lmplot(x='RefSt', y='KNN_Pred', data=pred, fit_reg=True, line_kws={'color': 'orange'})
     plt.show()
 

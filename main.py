@@ -6,6 +6,7 @@ import utils
 import MLR
 import SVR
 import kernel
+import KNN
 import random_forest
 
 if __name__ == "__main__":
@@ -66,8 +67,11 @@ if __name__ == "__main__":
     # Kernels
     # kernel.polynomial_kernel(x_train, y_train, x_test, y_test)
 
+    # KNN
+    KNN.k_neighbors(x_train, y_train, x_test, y_test)
+
     # Random forest
     # random_forest.random_forest(x_train, y_train, x_test, y_test)
 
     # Support vector regression
-    SVR.svr(x_train, y_train, x_test, y_test)
+    # SVR.svr(x_train, y_train, x_test, y_test)
