@@ -2,8 +2,10 @@ import data
 import pandas as pd
 import plots
 import utils
+
 import MLR
 import SVR
+import kernel
 
 
 if __name__ == "__main__":
@@ -58,6 +60,11 @@ if __name__ == "__main__":
     norm_data[["RefSt", "MRL"]].plot()
     plt.show()"""
 
+    # Multiple linear regression
+    # MLR.ridge_regression(x_train, y_train, x_test, y_test)
 
-    MLR.ridge_regression(x_train, y_train, x_test, y_test)
-    # SVR.svr(x_train, y_train, x_test, y_test)
+    # Kernels
+    # kernel.polynomial_kernel(x_train, y_train, x_test, y_test)
+
+    # Support vector regression
+    SVR.svr(x_train, y_train, x_test, y_test)

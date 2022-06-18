@@ -34,7 +34,10 @@ def svr(x_train, y_train, x_test, y_test):
     pred = pd.DataFrame()
     pred['RefSt'] = y_test
     pred['SVR_Pred'] = svr_pred
-    # pred['date'] = data.new_PR_data_inner['date']
+    pred['date'] = data.new_PR_data_inner['date']
+    ax = pred.plot(x='date', y='RefSt')
+    pred.plot(x='date', y='SVR_Pred', ax=ax, title='Support Vector Regression')
+    plt.show()
 
     # Plot regression
     sns.lmplot(x='RefSt', y='SVR_Pred', data=pred, fit_reg=True, line_kws={'color': 'orange'})
