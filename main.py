@@ -1,13 +1,9 @@
 import data
 import pandas as pd
 import plots
-import seaborn as sns # for scatter plot
-import matplotlib.pyplot as plt
 import utils
-from sklearn import linear_model
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-from mlxtend.feature_selection import SequentialFeatureSelector as sfs
+import MLR
+import SVR
 
 
 if __name__ == "__main__":
@@ -62,68 +58,6 @@ if __name__ == "__main__":
     norm_data[["RefSt", "MRL"]].plot()
     plt.show()"""
 
-    # RIDGE REGRESSION
-    print("******* RIDGE REGRESSION *******")
-    rm = linear_model.Ridge()
 
-    alphas = [1, 5, 10, 50, 100, 250, 500]
-    coef = []
-    r2 = []
-    rmse = []
-    mae = []
-    for a in alphas:
-        rm.set_params(alpha=a)
-        rm.fit(best_x_train, y_train)
-
-        print("Alpha: ", a)
-        coef.append(rm.coef_)
-        print("Coefficients: ", rm.coef_)
-        pred = rm.predict(best_x_test)
-        print("R^2:", r2_score(y_test, pred))
-        r2.append(r2_score(y_test, pred))
-        print("RMSE: ", mean_squared_error(y_test, pred, squared=False))
-        rmse.append(mean_squared_error(y_test, pred, squared=False))
-        print("MAE: ", mean_absolute_error(y_test, pred))
-        mae.append(mean_absolute_error(y_test, pred))
-
-    # plot coefficients with alphas
-    ax = plt.gca()
-    ax.plot(alphas, coef)
-    plt.axis('tight')
-    plt.xlabel('alpha')
-    plt.ylabel('coefficients')
-    plt.title("Plot of coefficients for different alphas")
-    ax.legend(("Sensor O3 coef", "Temp coef", "RelHum coef"))
-    plt.savefig("img/ridge_coefs")
-    plt.clf()
-    # plt.show()
-
-    # plot errors
-    plt.title("R^2, Root Mean Square Error and Mean Absolute Error")
-    plt.xlabel('Different alphas')
-    plt.ylabel('Error')
-    plt.plot(alphas, r2, color='red')
-    plt.plot(alphas, rmse, color='black')
-    plt.plot(alphas, mae, color='green')
-    plt.legend(("R^2", "RMSE", "MAE"))
-    plt.show()
-
-    # choose alpha
-    rm.set_params(alpha=10)
-    rm.fit(best_x_train, y_train)
-
-    pred = pd.DataFrame()
-    pred['RefSt'] = y_test
-    pred['Ridge_Pred'] = rm.intercept_ \
-        + rm.coef_[0] * best_x_test['Sensor_O3'] \
-        + rm.coef_[1] * best_x_test['Temp'] \
-        + rm.coef_[2] * best_x_test['RelHum']
-    pred['date'] = data.new_PR_data_inner['date']
-    # Plot estimated O3 against date O3 reference data
-    plt.title("MLR against RefSt")
-    plt.xlabel("date")
-    pred[['RefSt']].plot()
-    plt.xticks(rotation=20)
-
-    # sns.lmplot(x='RefSt', y='Ridge_Pred', data=pred, fit_reg=True, line_kws={'color': 'orange'})
-    plt.show()
+    MLR.ridge_regression(x_train, y_train, x_test, y_test)
+    # SVR.svr(x_train, y_train, x_test, y_test)
