@@ -6,7 +6,7 @@ import utils
 import MLR
 import SVR
 import kernel
-
+import random_forest
 
 if __name__ == "__main__":
     # remove dots from thousands in O3 sensors data
@@ -65,6 +65,9 @@ if __name__ == "__main__":
 
     # Kernels
     # kernel.polynomial_kernel(x_train, y_train, x_test, y_test)
+
+    # Random forest
+    # random_forest.random_forest(x_train, y_train, x_test, y_test)
 
     # Support vector regression
     SVR.svr(x_train, y_train, x_test, y_test)
