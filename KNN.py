@@ -2,9 +2,10 @@ import pandas as pd
 import seaborn as sns  # for scatter plot
 import matplotlib.pyplot as plt
 import data
+import utils
 
-from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
 
 def k_neighbors(x_train, y_train, x_test, y_test):
@@ -15,51 +16,49 @@ def k_neighbors(x_train, y_train, x_test, y_test):
 
     n_neighbors = [1, 3, 5, 7, 9, 11, 13, 15]
 
-    param_grid = {
-        'n_neighbors': n_neighbors,
-    }
+    r2 = []
+    rmse = []
+    mae = []
 
-    scoring_cols = [
-        'param_n_neighbors',
-        'mean_test_mae',
-        'mean_test_mse',
-        'mean_test_r2',
-    ]
+    for n in n_neighbors:
+        model = KNeighborsRegressor(n_neighbors=n)
+        model.fit(x_train, y_train)
+        mpred = model.predict(x_test)
 
-    scoring_dict = {
-        'mae': 'neg_mean_absolute_error',
-        'mse': 'neg_mean_squared_error',
-        'r2': 'r2',
-    }
+        pred['KNN_Prediction'] = mpred
 
-    cvModel = GridSearchCV(
-        estimator=KNeighborsRegressor(),
-        scoring=scoring_dict,
-        param_grid=param_grid,
-        refit='mae',
-        cv=10,
-        n_jobs=-1,
-        return_train_score=False
-    )
+        print(n, mpred)
+        print("KNN " + str(n) + " neighbors")
+        print("R²: " + str(r2_score(y_test, mpred)))
+        r2.append(r2_score(y_test, mpred))
+        print("RMSE: " + str(mean_squared_error(y_test, mpred, squared=False)))
+        rmse.append(mean_squared_error(y_test, mpred, squared=False))
+        print("MAE: " + str(mean_absolute_error(y_test, mpred)))
+        mae.append(mean_absolute_error(y_test, mpred))
 
-    cvModel = cvModel.fit(x_train, y_train)
+        ax1 = pred.plot(x='date', y='RefSt')
+        pred.plot(x='date', y='KNN_Prediction', ax=ax1, title='KNN for ' + str(n) + ' neighbors.')
+        label = "KNN_" + str(n)
+        plt.savefig("img/" + label)
+        plt.clf()
 
-    pd.set_option('display.max_rows', 10)
-    pd.set_option('display.max_columns', 10)
-    pd.set_option('display.float_format', lambda x: '%.3f' % x)
-    scores = pd.DataFrame(cvModel.cv_results_).sort_values(by='mean_test_mae', ascending=False)[scoring_cols].head()
-    print(scores)
+        sns_rf = sns.lmplot(x='RefSt', y='KNN_Prediction', data=pred, fit_reg=True,
+                            line_kws={'color': 'orange'}).set(title='KNN for ' + str(n) + ' neighbors.')
+        sns_rf.set(ylim=(-2, 3))
+        sns_rf.set(xlim=(-2, 3))
+        label = "KNN_line_" + str(n)
+        plt.savefig("img/" + label)
+        plt.clf()
 
-    # Plot linear
-    pred = pd.DataFrame()
-    pred['RefSt'] = y_test
-    pred['KNN_Pred'] = cvModel.predict(x_test)
-    pred['date'] = data.new_PR_data_inner['date']
-    ax = pred.plot(x='date', y='RefSt')
-    pred.plot(x='date', y='KNN_Pred', ax=ax, title='K-Nearest Neighbor')
-    plt.show()
+    utils.table_creation(['Number of neighbours', 'R^2', 'RMSE', 'MAE'], [n_neighbors, r2, rmse, mae],
+                         'knn_table.txt')
 
-    # Plot regression
-    sns.lmplot(x='RefSt', y='KNN_Pred', data=pred, fit_reg=True, line_kws={'color': 'orange'})
-    plt.show()
-
+    plt.title("KNN erros vs  number of neighbors")
+    plt.xlabel('Number of neighbors')
+    plt.ylabel('Error value')
+    plt.plot(n_neighbors, r2, color='red', label="R^2")
+    plt.plot(n_neighbors, rmse, color='blue', label="RMSE")
+    plt.plot(n_neighbors, mae, color='green', label="MAE")
+    plt.legend(loc="center left")
+    plt.savefig("img/KNN_errors")
+    plt.clf()

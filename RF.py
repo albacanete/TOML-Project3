@@ -22,7 +22,6 @@ def random_forest(x_train, y_train, x_test, y_test):
     rmse = []
     mae = []
 
-    print()
     for n in estimators_rf:
         rf.set_params(n_estimators=n)
         rf.fit(x_train, y_train)

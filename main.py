@@ -5,9 +5,10 @@ import utils
 
 import MLR
 import SVR
-import kernel
+import RBF
 import KNN
-import random_forest
+import KNN
+import RF
 
 if __name__ == "__main__":
     # remove dots from thousands in O3 sensors data
@@ -64,14 +65,15 @@ if __name__ == "__main__":
     # Multiple linear regression
     # MLR.ridge_regression(x_train, y_train, x_test, y_test)
 
-    # Kernels
-    # kernel.polynomial_kernel(x_train, y_train, x_test, y_test)
-
     # KNN
-    KNN.k_neighbors(x_train, y_train, x_test, y_test)
+    KNN.k_neighbors(best_x_train, y_train, best_x_test, y_test)
+
+    # Kernels
+    # RBF.polynomial_kernel(x_train, y_train, x_test, y_test)
+    # RBF.gaussian_kernel(x_train, y_train, x_test, y_test)
 
     # Random forest
-    # random_forest.random_forest(x_train, y_train, x_test, y_test)
+    # RF.random_forest(x_train, y_train, x_test, y_test)
 
     # Support vector regression
-    # SVR.svr(x_train, y_train, x_test, y_test)
+    # SVR.svr(best_x_train, y_train, best_x_test, y_test)

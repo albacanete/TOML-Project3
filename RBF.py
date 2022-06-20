@@ -91,6 +91,7 @@ def gaussian_kernel(x_train, y_train, x_test, y_test):
     # Create the table and save it to a file
     utils.table_creation(['R^2', 'RMSE', 'MAE'], [r2, rmse, mae], 'kernel_ridge_regression_gaussian.txt')
 
+    """
     # Both plots
     ax = pred.plot(x='date', y='RefSt')
     ax2 = pred.plot(x='date', y='Kernel_Gauss_Pred', ax=ax)
@@ -99,3 +100,5 @@ def gaussian_kernel(x_train, y_train, x_test, y_test):
     plt.show()
     # plt.savefig(path_kernel_ridge_regression_plots + str("models/kernel_gauss_poly_model.png"), bbox_inches='tight')
     # plt.clf()
+    """
+
