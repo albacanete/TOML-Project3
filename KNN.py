@@ -1,64 +1,84 @@
 import pandas as pd
 import seaborn as sns  # for scatter plot
 import matplotlib.pyplot as plt
-import data
-import utils
-
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.model_selection import train_test_split, cross_val_score
+
+import data
+import math
+import matplotlib as mpl
+mpl.rcParams['figure.figsize'] = (10, 6)
 
 
-def k_neighbors(x_train, y_train, x_test, y_test):
+def k_neighbors(x, y):
+    # divide dataset
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
+
     pred = pd.DataFrame()
     pred['RefSt'] = y_test
     pred['Sensor_O3'] = x_test['Sensor_O3']
     pred['date'] = data.new_PR_data_inner['date']
 
-    n_neighbors = [1, 3, 5, 7, 9, 11, 13, 15]
-
+    n_neighbors = [5, 8, 10, 12, 15, 18, 22, 25]
     r2 = []
-    rmse = []
-    mae = []
+    mse = []
+    for k in n_neighbors:  # running for different K values to know which yields the max accuracy.
+        clf = KNeighborsRegressor(n_neighbors=k, weights='distance', p=1)
+        clf.fit(x_train, y_train)
+        r2_scores = cross_val_score(clf, x_train, y_train, cv=10, scoring='r2')
+        mse_score = cross_val_score(clf, x_train, y_train, cv=10)
+        r2.append(r2_scores.mean())
+        mse.append(mse_score.mean())
 
-    for n in n_neighbors:
-        model = KNeighborsRegressor(n_neighbors=n)
-        model.fit(x_train, y_train)
-        mpred = model.predict(x_test)
+    rmse = [math.sqrt(1 - x) for x in mse]
+    print(r2)
+    print(rmse)
 
-        pred['KNN_Prediction'] = mpred
-
-        print(n, mpred)
-        print("KNN " + str(n) + " neighbors")
-        print("R²: " + str(r2_score(y_test, mpred)))
-        r2.append(r2_score(y_test, mpred))
-        print("RMSE: " + str(mean_squared_error(y_test, mpred, squared=False)))
-        rmse.append(mean_squared_error(y_test, mpred, squared=False))
-        print("MAE: " + str(mean_absolute_error(y_test, mpred)))
-        mae.append(mean_absolute_error(y_test, mpred))
-
-        ax1 = pred.plot(x='date', y='RefSt')
-        pred.plot(x='date', y='KNN_Prediction', ax=ax1, title='KNN for ' + str(n) + ' neighbors.')
-        label = "KNN_" + str(n)
-        plt.savefig("img/" + label)
-        plt.clf()
-
-        sns_rf = sns.lmplot(x='RefSt', y='KNN_Prediction', data=pred, fit_reg=True,
-                            line_kws={'color': 'orange'}).set(title='KNN for ' + str(n) + ' neighbors.')
-        sns_rf.set(ylim=(-2, 3))
-        sns_rf.set(xlim=(-2, 3))
-        label = "KNN_line_" + str(n)
-        plt.savefig("img/" + label)
-        plt.clf()
-
-    utils.table_creation(['Number of neighbours', 'R^2', 'RMSE', 'MAE'], [n_neighbors, r2, rmse, mae],
-                         'knn_table.txt')
-
-    plt.title("KNN erros vs  number of neighbors")
+    # plot errors
+    plt.title("R-squared")
     plt.xlabel('Number of neighbors')
-    plt.ylabel('Error value')
-    plt.plot(n_neighbors, r2, color='red', label="R^2")
-    plt.plot(n_neighbors, rmse, color='blue', label="RMSE")
-    plt.plot(n_neighbors, mae, color='green', label="MAE")
-    plt.legend(loc="center left")
-    plt.savefig("img/KNN_errors")
+    plt.ylabel('R^2')
+    plt.plot(n_neighbors, r2, color='red')
+    plt.savefig("img/knn_r2")
+    plt.clf()
+
+    plt.title("Root Mean Squared Error")
+    plt.xlabel('Number of neighbors')
+    plt.ylabel('RMSE')
+    plt.plot(n_neighbors, rmse, color='blue')
+    plt.savefig("img/knn_rmse")
+    plt.clf()
+    # plt.show()
+
+    # best neighbour is the one with higher R^2
+    best_n = n_neighbors[r2.index(max(r2))]
+    print(best_n)
+
+    model = KNeighborsRegressor(n_neighbors=best_n)
+    model.fit(x_train, y_train)
+    mpred = model.predict(x_test)
+    acc = model.score(x_test, y_test)
+    pred['Pred'] = mpred
+
+    print("KNN PREDICTION")
+    print("R^2: ", str(r2_score(y_test, mpred)))
+    print("RMSE: ", str(mean_squared_error(y_test, mpred, squared=False)))
+    print("MAE: ", str(mean_absolute_error(y_test, mpred)))
+    print("Accuracy: ", str(acc*100))
+
+    ax1 = pred.plot(x='date', y='RefSt', color='red')
+    pred.plot(x='date', y='Pred', ax=ax1, title='KNN for ' + str(best_n) + ' neighbors.', color='blue')
+    label = "KNN_" + str(best_n)
+    plt.savefig("img/" + label)
+    plt.clf()
+
+    # sns.set(rc={"figure.figsize": (12, 15)})
+    sns_rf = sns.lmplot(x='RefSt', y='Pred', data=pred, fit_reg=True, height=5, aspect=1.5,
+                        line_kws={'color': 'orange'})
+    sns_rf.fig.suptitle('KNN for ' + str(best_n) + ' neighbors.')
+    sns_rf.set(ylim=(-2, 3))
+    sns_rf.set(xlim=(-2, 3))
+    label = "KNN_line_" + str(best_n)
+    plt.savefig("img/" + label)
     plt.clf()

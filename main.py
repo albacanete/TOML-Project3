@@ -42,12 +42,12 @@ if __name__ == "__main__":
     y = norm_data['RefSt']
 
     # Multiple linear regression
-    MLR.forward_subset(x, y)
-    MLR.ridge_regression(x, y)
+    # MLR.forward_subset(x, y)
+    # MLR.ridge_regression(x, y)
     MLR.lasso(x, y)
 
     # KNN
-    # KNN.k_neighbors(best_x_train, y_train, best_x_test, y_test, best_x_val, y_val)
+    # KNN.k_neighbors(x, y)
 
     # Kernels
     # RBF.polynomial_kernel(x_train, y_train, x_test, y_test)

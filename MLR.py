@@ -130,11 +130,13 @@ def ridge_regression(x, y):
     rm.set_params(alpha=1)
     rm.fit(x_train, y_train)
     rmpred = rm.predict(x_test)
+    acc = rm.score(x_test, y_test)
 
     print("RIDGE PREDICTION")
     print("R^2: ", str(r2_score(y_test, rmpred)))
     print("RMSE: ", str(mean_squared_error(y_test, rmpred, squared=False)))
     print("MAE : ", str(mean_absolute_error(y_test, rmpred)))
+
 
     pred = pd.DataFrame()
     pred['RefSt'] = y_test
@@ -230,8 +232,7 @@ def lasso(x, y):
 
     ax1 = pred.plot(x='date', y='RefSt', color='red')
     pred.plot(x='date', y='Pred', ax=ax1, title='LASSO for alpha ' + str(best_a), color='blue')
-    label = "LASSO_" + best_a
-    plt.savefig("img/" + label)
+    plt.savefig("img/LASSO_pred")
     plt.clf()
 
     sns_r = sns.lmplot(x='RefSt', y='Pred', data=pred, fit_reg=True, height=5, aspect=1.5,
@@ -240,6 +241,5 @@ def lasso(x, y):
     sns_r.set(ylim=(-2, 3))
     sns_r.set(xlim=(-2, 3))
     # plt.show()
-    label = "LASSO_line_" + best_a
-    plt.savefig("img/" + label)
+    plt.savefig("img/LASSO_line")
     plt.clf()
