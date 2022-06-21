@@ -1,9 +1,7 @@
 import pandas as pd
 import json
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-from mlxtend.feature_selection import SequentialFeatureSelector as sfs
 from sklearn.model_selection import GridSearchCV
 from tabulate import tabulate
 
@@ -26,26 +24,6 @@ def get_cov_matrix(data):
     pd.set_option('display.float_format', lambda x: '%.2f' % x)
     cov = data.cov()
     return cov
-
-
-# create train and test sets
-def train_test_creation(x, y):
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1, shuffle=False)
-    return x_train, x_test, y_train, y_test
-
-
-# compute best features
-def forward_subset_selection(x, y, k):
-    # Check if missing values for the data
-    lreg = LinearRegression()
-
-    # FORWARD by R2
-    sfs_r2 = sfs(lreg, k_features=k, forward=True, scoring='r2').fit(x, y)
-    sfs_mae = sfs(lreg, k_features=k, forward=True, scoring='neg_mean_absolute_error').fit(x, y)
-    sfs_mse = sfs(lreg, k_features=k, forward=True, scoring='neg_mean_squared_error').fit(x, y)
-
-    feat_names = list(sfs_r2.k_feature_names_)
-    return feat_names  # Return the best features
 
 
 def loss_functions(y_pred, y_true):

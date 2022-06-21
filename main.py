@@ -2,6 +2,7 @@ import data
 import pandas as pd
 import plots
 import utils
+from sklearn.model_selection import train_test_split
 
 import MLR
 import SVR
@@ -9,6 +10,7 @@ import RBF
 import KNN
 import KNN
 import RF
+
 
 if __name__ == "__main__":
     # remove dots from thousands in O3 sensors data
@@ -35,38 +37,17 @@ if __name__ == "__main__":
     # cov = utils.get_cov_matrix(norm_data)
     # print(cov)
 
-    # FORWARD SUBSET SELECTION
-    print("******* FORWARD SUBSET SELECTION *******")
+    # division of the dataset
     x = norm_data.drop(['date', 'RefSt'], axis=1)
     y = norm_data['RefSt']
-    x_train, x_test, y_train, y_test = utils.train_test_split(x, y)
-    k = 3
-    best_features = utils.forward_subset_selection(x_train, y_train, k)
-    print(best_features)  # ['Sensor_O3', 'Temp', 'RelHum']
-
-    best_x_train = x_train[['Sensor_O3', 'Temp', 'RelHum']]
-    best_x_test = x_test[['Sensor_O3', 'Temp', 'RelHum']]
-    """
-    # Calculate multiple linear regression model
-    linear_model = LinearRegression()
-    linear_model.fit(best_x_train, y_train)
-    # print coefficients
-    print("Intercept: ",  linear_model.intercept_)
-    print("Coefficients: ",  linear_model.coef_)
-    # predictions
-    norm_data["MRL"] = linear_model.intercept_ \
-                + linear_model.coef_[0] * norm_data["Sensor_O3"] \
-                + linear_model.coef_[1] * norm_data["Temp"] \
-                + linear_model.coef_[2] * norm_data["RelHum"]
-    # plot
-    norm_data[["RefSt", "MRL"]].plot()
-    plt.show()"""
 
     # Multiple linear regression
-    # MLR.ridge_regression(x_train, y_train, x_test, y_test)
+    MLR.forward_subset(x, y)
+    MLR.ridge_regression(x, y)
+    MLR.lasso(x, y)
 
     # KNN
-    KNN.k_neighbors(best_x_train, y_train, best_x_test, y_test)
+    # KNN.k_neighbors(best_x_train, y_train, best_x_test, y_test, best_x_val, y_val)
 
     # Kernels
     # RBF.polynomial_kernel(x_train, y_train, x_test, y_test)
