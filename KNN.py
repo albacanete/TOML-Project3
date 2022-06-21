@@ -6,6 +6,7 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split, cross_val_score
 
 import data
+import utils
 import math
 import matplotlib as mpl
 mpl.rcParams['figure.figsize'] = (10, 6)
@@ -20,20 +21,26 @@ def k_neighbors(x, y):
     pred['Sensor_O3'] = x_test['Sensor_O3']
     pred['date'] = data.new_PR_data_inner['date']
 
-    n_neighbors = [5, 8, 10, 12, 15, 18, 22, 25]
+    n_neighbors = [2, 5, 8, 10, 12, 15, 18, 22, 25]
     r2 = []
     mse = []
+    mae = []
     for k in n_neighbors:  # running for different K values to know which yields the max accuracy.
         clf = KNeighborsRegressor(n_neighbors=k, weights='distance', p=1)
         clf.fit(x_train, y_train)
         r2_scores = cross_val_score(clf, x_train, y_train, cv=10, scoring='r2')
+        mae_score = cross_val_score(clf, x_train, y_train, cv=10, scoring='neg_mean_absolute_error')
         mse_score = cross_val_score(clf, x_train, y_train, cv=10)
         r2.append(r2_scores.mean())
         mse.append(mse_score.mean())
+        mae.append(mae_score.mean())
 
     rmse = [math.sqrt(1 - x) for x in mse]
+    mae = [-1*x for x in mae]
     print(r2)
     print(rmse)
+    utils.table_creation(['Number of neighbours', 'R^2', 'RMSE', 'MAE'], [n_neighbors, r2, rmse, mae],
+                         'knn_table.txt')
 
     # plot errors
     plt.title("R-squared")
@@ -48,6 +55,13 @@ def k_neighbors(x, y):
     plt.ylabel('RMSE')
     plt.plot(n_neighbors, rmse, color='blue')
     plt.savefig("img/knn_rmse")
+    plt.clf()
+
+    plt.title("Mean Absoulte Error")
+    plt.xlabel('Number of neighbors')
+    plt.ylabel('MAE')
+    plt.plot(n_neighbors, mae, color='black')
+    plt.savefig("img/knn_mae")
     plt.clf()
     # plt.show()
 

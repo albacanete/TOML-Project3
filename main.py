@@ -44,10 +44,10 @@ if __name__ == "__main__":
     # Multiple linear regression
     # MLR.forward_subset(x, y)
     # MLR.ridge_regression(x, y)
-    MLR.lasso(x, y)
+    # MLR.lasso(x, y)
 
     # KNN
-    # KNN.k_neighbors(x, y)
+    KNN.k_neighbors(x, y)
 
     # Kernels
     # RBF.polynomial_kernel(x_train, y_train, x_test, y_test)
