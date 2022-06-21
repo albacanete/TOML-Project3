@@ -4,39 +4,37 @@ import matplotlib.pyplot as plt
 import data
 
 from sklearn.svm import SVR
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 
-def svr(x_train, y_train, x_test, y_test):
+def svr(x, y):
+    # divide dataset
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
+
     pred = pd.DataFrame()
     pred['RefSt'] = y_test
     pred['Sensor_O3'] = x_test['Sensor_O3']
     pred['date'] = data.new_PR_data_inner['date']
 
-    # TODO: perform grid search to find best hyperparameters. This is just a test
-    # C = 100
-    # degree = 2
-    # gamma = "scale"
-    # kernel = "rbf"
-
     # Performing hyper-parameters grid search
     C = [0.001, 0.01, 0.1, 1, 10, 100]
-    degree = [1, 2, 3, 4, 5, 6, 7]
+    # gamma = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     gamma = ["auto", "scale"]
-    kernel = ["rbf", "poly", "linear"]
+    epsilon = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    kernel = ["rbf"]
 
     param_grid = {
         'kernel': kernel,
-        'degree': degree,
         'gamma': gamma,
         'C': C,
+        'epsilon': epsilon
     }
 
     scoring_cols = [
         'param_kernel',
         'param_C',
-        'param_degree',
         'param_gamma',
+        'param_epsilon',
         'mean_test_mae',
         'mean_test_mse',
         'mean_test_r2',
@@ -74,11 +72,19 @@ def svr(x_train, y_train, x_test, y_test):
 
     pred['SVR_Pred'] = cvModel.predict(x_test)
     pred['date'] = data.new_PR_data_inner['date']
-    ax = pred.plot(x='date', y='RefSt')
-    pred.plot(x='date', y='SVR_Pred', ax=ax, title='Support Vector Regression')
-    plt.show()
+    ax = pred.plot(x='date', y='RefSt', color='red')
+    pred.plot(x='date', y='SVR_Pred', ax=ax, title='Support Vector Regression', color='blue')
+    plt.savefig("img/SVR_pred_auto")
+    plt.clf()
+    # plt.show()
 
     # Plot regression
-    sns.lmplot(x='RefSt', y='SVR_Pred', data=pred, fit_reg=True, line_kws={'color': 'orange'})
-    plt.show()
+    sns_svr = sns.lmplot(x='RefSt', y='SVR_Pred', data=pred, fit_reg=True, height=5, aspect=1.5,
+                         line_kws={'color': 'orange'})
+    sns_svr.fig.suptitle('Best prediction for SVR')
+    sns_svr.set(ylim=(-2, 3))
+    sns_svr.set(xlim=(-2, 3))
+    plt.savefig("img/SVR_line_auto")
+    plt.clf()
+    # plt.show()
 
